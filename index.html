@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Event Takibi · Lara Smile</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦷</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  /* ===========================================================
+     AYAR: Apps Script "Web uygulaması" adresini buraya yapıştır.
+     Boş bırakılırsa sayfa örnek veriyle açılır.
+     =========================================================== */
+  const API_URL = "https://script.google.com/macros/s/AKfycbyK4yWAIMycAzXeLXuOZ7NQ9fxWYqnTbeKSt0io785QlOUvh2JnOfTlUUyqjqW1g_xo/exec";
+  const REFRESH_SECONDS = 60;
+</script>
+<style>
+:root{
+  --navy:#0F2231; --deep:#0B1A26; --panel:#16304A; --line:#27465F;
+  --text:#EAF1F5; --muted:#8EA4B8; --mint:#6FD6C3; --gold:#F0C069; --coral:#E8806E;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Manrope", "Segoe UI", system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--navy);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.5;
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--mint);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 28px 64px}
+
+/* header */
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:36px}
+.brand{display:flex;align-items:center;gap:14px}
+.mark{width:46px;height:46px;border-radius:50%;background:var(--text);color:var(--navy);display:grid;place-items:center;
+  font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:-.02em}
+.brand p{margin:0;color:var(--muted);font-size:14px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,4.2vw,46px);line-height:1;margin:2px 0 0;letter-spacing:-.025em}
+.months{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600;cursor:pointer;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--text);color:var(--navy);border-color:var(--text)}
+.chip:hover{color:var(--text)}
+.chip[aria-pressed="true"]:hover{color:var(--navy)}
+.meta{color:var(--muted);font-size:13px;text-align:right}
+.meta b{color:var(--text);font-weight:600}
+.notice{background:#2A3B22;border:1px solid #4E6B3A;color:#DDEBC8;padding:10px 14px;border-radius:10px;font-size:14px;margin-bottom:24px}
+.notice.err{background:#3A2222;border-color:#7A3A3A;color:#F3D0CA}
+
+/* route — the tour line */
+.route{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(260px,1fr);gap:22px;
+  padding-top:34px;margin-bottom:18px;overflow-x:auto}
+.route::before{content:"";position:absolute;left:12px;right:12px;top:11px;height:2px;
+  background:repeating-linear-gradient(90deg,var(--line) 0 10px,transparent 10px 18px)}
+.stop{position:relative}
+.stop::before{content:"";position:absolute;top:-30px;left:0;width:16px;height:16px;border-radius:50%;
+  background:var(--navy);border:3px solid var(--muted)}
+.stop.live::before{border-color:var(--mint);background:var(--mint);box-shadow:0 0 0 6px rgba(111,214,195,.18)}
+.stop.done::before{border-color:var(--gold);background:var(--gold)}
+.city{font-family:var(--display);font-weight:800;font-size:clamp(28px,3vw,38px);letter-spacing:-.02em;line-height:1.05;margin:0}
+.when{color:var(--muted);font-size:14px;margin:4px 0 16px}
+.when b{color:var(--text);font-weight:600}
+.ev{border-top:1px solid var(--line);padding:14px 0 16px}
+.ev-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.ev-type{font-weight:700;font-size:15px}
+.ev-type small{color:var(--muted);font-weight:500;margin-left:6px}
+.big{font-family:var(--display);font-weight:800;font-size:48px;line-height:1;letter-spacing:-.03em}
+.big small{font-family:var(--body);font-size:14px;font-weight:600;color:var(--muted);letter-spacing:0;margin-left:6px}
+.days{display:flex;gap:4px;margin-top:12px}
+.dayb{flex:1;min-width:0}
+.dayb .track{height:8px;border-radius:4px;background:var(--deep);overflow:hidden}
+.dayb .fill{height:100%;background:var(--mint);border-radius:4px}
+.dayb span{display:block;font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap}
+.outcome{display:flex;gap:18px;margin-top:12px;font-size:14px;color:var(--muted)}
+.outcome b{font-family:var(--display);font-size:22px;font-weight:800;color:var(--text);margin-right:4px}
+.outcome .bk b{color:var(--gold)}
+.hint{font-size:13px;color:var(--muted);margin-top:10px}
+
+.summary{color:var(--muted);font-size:15px;margin:10px 0 48px;max-width:70ch}
+.summary b{color:var(--text)}
+
+/* leaderboard */
+h2{font-family:var(--display);font-weight:800;font-size:28px;letter-spacing:-.02em;margin:0 0 14px}
+.bar-tools{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-bottom:18px}
+.filters,.sorts{display:flex;gap:6px;flex-wrap:wrap}
+.board{background:var(--deep);border-radius:18px;padding:8px 20px}
+.row{display:grid;grid-template-columns:34px minmax(90px,150px) 1fr 64px 64px 64px 74px;align-items:center;gap:14px;
+  padding:12px 0;border-bottom:1px solid rgba(39,70,95,.6)}
+.row:last-child{border-bottom:0}
+.board.pre .row{grid-template-columns:34px minmax(90px,150px) 1fr 74px}
+.board.pre .meter .r{background:var(--mint)}
+.row.head .num{font-size:13px;font-weight:600}
+.row.head{color:var(--muted);font-size:13px;font-weight:600;padding:10px 0}
+.rank{font-family:var(--display);font-weight:800;font-size:20px;color:var(--muted)}
+.row:nth-child(2) .rank{color:var(--gold)}
+.name{font-weight:700;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.name.dim{color:var(--muted);font-weight:500;font-style:italic}
+.meter{position:relative;height:12px;border-radius:6px;background:var(--panel);overflow:hidden}
+.meter i{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+.meter .r{background:rgba(111,214,195,.35)}
+.meter .g{background:var(--mint)}
+.meter .b{background:var(--gold)}
+.num{text-align:right;font-weight:700;font-size:17px}
+.num.zero{color:var(--muted);font-weight:500}
+.num.bk{color:var(--gold)}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+.legend[hidden]{display:none}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+/* matrix */
+.matrix-wrap{margin-top:40px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:480px;font-size:15px}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-weight:600;font-size:13px}
+td.z{color:#4D6980}
+tfoot td{font-weight:800;border-bottom:0}
+
+.empty{color:var(--muted);padding:28px 0;text-align:center}
+@media (max-width:720px){
+  .wrap{padding:20px 16px 48px}
+  .route{grid-auto-flow:row;grid-auto-columns:auto;padding-top:0;padding-left:30px}
+  .route::before{left:7px;right:auto;top:6px;bottom:6px;width:2px;height:auto;
+    background:repeating-linear-gradient(180deg,var(--line) 0 10px,transparent 10px 18px)}
+  .stop::before{top:6px;left:-30px}
+  .row{grid-template-columns:26px 1fr 44px 44px 44px;gap:8px}
+  .row .meter,.row .pct{display:none}
+  .board.pre .row{grid-template-columns:26px 1fr 60px}
+  .meta{text-align:left}
+}
+@media (prefers-reduced-motion:no-preference){
+  .dayb .fill,.meter i{transition:width .6s cubic-bezier(.2,.8,.2,1)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="mark" aria-hidden="true">LS</div>
+      <div>
+        <p>Lara Smile</p>
+        <h1>Event takibi</h1>
+      </div>
+    </div>
+    <div class="months" id="months" role="group" aria-label="Dönem"></div>
+    <div class="meta" id="meta">Yükleniyor…</div>
+  </header>
+
+  <div id="notice"></div>
+  <section class="route" id="route" aria-label="Event rotası"></section>
+  <p class="summary" id="summary"></p>
+
+  <section aria-labelledby="lb-title">
+    <h2 id="lb-title">Kim ne kadar randevu yazdı</h2>
+    <div class="bar-tools">
+      <div class="filters" id="filters" role="group" aria-label="Event filtresi"></div>
+      <div class="sorts" id="sorts" role="group" aria-label="Sıralama"></div>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="legend" id="legend">
+      <span><i style="background:rgba(111,214,195,.35)"></i>Randevu</span>
+      <span><i style="background:var(--mint)"></i>Geldi</span>
+      <span><i style="background:var(--gold)"></i>Book</span>
+    </div>
+    <div class="matrix-wrap" id="matrix"></div>
+  </section>
+</div>
+
+<script>
+/* Örnek veri (Ekim 2026 sheet'inden çıkarıldı, API bağlanınca kullanılmaz) */
+const DEMO = {"updatedAt":"2026-09-26T06:39:23.636Z","events":[{"id":"londra-2026-10-10","name":"Londra","city":"Londra","type":"Dental","start":"2026-10-10","end":"2026-10-11","month":"2026-10","hasStatusColumn":false,"duplicates":1,"days":[{"date":"2026-10-10","slots":74,"randevu":18,"geldi":0,"book":0,"gelmedi":0,"agents":{"Burak":{"randevu":2,"geldi":0,"book":0,"gelmedi":0},"Mine":{"randevu":3,"geldi":0,"book":0,"gelmedi":0},"Emine":{"randevu":4,"geldi":0,"book":0,"gelmedi":0},"Onur":{"randevu":2,"geldi":0,"book":0,"gelmedi":0},"Bilge":{"randevu":7,"geldi":0,"book":0,"gelmedi":0}}},{"date":"2026-10-11","slots":74,"randevu":16,"geldi":0,"book":0,"gelmedi":0,"agents":{"Murat":{"randevu":8,"geldi":0,"book":0,"gelmedi":0},"Mine":{"randevu":2,"geldi":0,"book":0,"gelmedi":0},"Emine":{"randevu":1,"geldi":0,"book":0,"gelmedi":0},"Bilge":{"randevu":1,"geldi":0,"book":0,"gelmedi":0},"Onur":{"randevu":4,"geldi":0,"book":0,"gelmedi":0}}}]},{"id":"birmingham-2026-10-13","name":"Birmingham","city":"Birmingham","type":"Dental","start":"2026-10-13","end":"2026-10-14","month":"2026-10","hasStatusColumn":false,"duplicates":0,"days":[{"date":"2026-10-13","slots":74,"randevu":5,"geldi":0,"book":0,"gelmedi":0,"agents":{"Murat":{"randevu":1,"geldi":0,"book":0,"gelmedi":0},"Mine":{"randevu":2,"geldi":0,"book":0,"gelmedi":0},"Cemre":{"randevu":1,"geldi":0,"book":0,"gelmedi":0},"Emine":{"randevu":1,"geldi":0,"book":0,"gelmedi":0}}},{"date":"2026-10-14","slots":74,"randevu":7,"geldi":0,"book":0,"gelmedi":0,"agents":{"Mine":{"randevu":2,"geldi":0,"book":0,"gelmedi":0},"Onur":{"randevu":3,"geldi":0,"book":0,"gelmedi":0},"Emine":{"randevu":1,"geldi":0,"book":0,"gelmedi":0},"Atanmamış":{"randevu":1,"geldi":0,"book":0,"gelmedi":0}}}]},{"id":"manchester-2026-10-16","name":"Manchester","city":"Manchester","type":"Dental","start":"2026-10-16","end":"2026-10-18","month":"2026-10","hasStatusColumn":false,"duplicates":1,"days":[{"date":"2026-10-16","slots":74,"randevu":11,"geldi":0,"book":0,"gelmedi":0,"agents":{"Emine":{"randevu":4,"geldi":0,"book":0,"gelmedi":0},"Bilge":{"randevu":4,"geldi":0,"book":0,"gelmedi":0},"Onur":{"randevu":3,"geldi":0,"book":0,"gelmedi":0}}},{"date":"2026-10-17","slots":74,"randevu":4,"geldi":0,"book":0,"gelmedi":0,"agents":{"Emine":{"randevu":1,"geldi":0,"book":0,"gelmedi":0},"Onur":{"randevu":2,"geldi":0,"book":0,"gelmedi":0},"Bilge":{"randevu":1,"geldi":0,"book":0,"gelmedi":0}}},{"date":"2026-10-18","slots":74,"randevu":6,"geldi":0,"book":0,"gelmedi":0,"agents":{"Onur":{"randevu":3,"geldi":0,"book":0,"gelmedi":0},"Bilge":{"randevu":2,"geldi":0,"book":0,"gelmedi":0},"Mine":{"randevu":1,"geldi":0,"book":0,"gelmedi":0}}}]},{"id":"manchester-estetik-2026-10-16","name":"Manchester Estetik","city":"Manchester","type":"Estetik","start":"2026-10-16","end":"2026-10-18","month":"2026-10","hasStatusColumn":false,"duplicates":0,"days":[{"date":"2026-10-16","slots":74,"randevu":11,"geldi":0,"book":0,"gelmedi":0,"agents":{"Murat":{"randevu":1,"geldi":0,"book":0,"gelmedi":0},"Atanmamış":{"randevu":5,"geldi":0,"book":0,"gelmedi":0},"Bilge":{"randevu":5,"geldi":0,"book":0,"gelmedi":0}}},{"date":"2026-10-17","slots":74,"randevu":3,"geldi":0,"book":0,"gelmedi":0,"agents":{"Bilge":{"randevu":2,"geldi":0,"book":0,"gelmedi":0},"Atanmamış":{"randevu":1,"geldi":0,"book":0,"gelmedi":0}}},{"date":"2026-10-18","slots":74,"randevu":3,"geldi":0,"book":0,"gelmedi":0,"agents":{"Bilge":{"randevu":2,"geldi":0,"book":0,"gelmedi":0},"Mine":{"randevu":1,"geldi":0,"book":0,"gelmedi":0}}}]}]};
+
+const TR_MONTHS = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+const TR_SHORT = ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+const TR_DAYS = ["Paz","Pzt","Sal","Çar","Per","Cum","Cmt"];
+
+const state = { data:null, month:null, filter:"all", sort:"randevu", demo:!API_URL };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pd = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const todayStr = () => { const t = new Date(); return t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0"); };
+
+function rangeLabel(a, b){
+  const A = pd(a), B = pd(b);
+  if (a === b) return `${A.getDate()} ${TR_MONTHS[A.getMonth()]}`;
+  if (A.getMonth() === B.getMonth()) return `${A.getDate()}–${B.getDate()} ${TR_MONTHS[A.getMonth()]}`;
+  return `${A.getDate()} ${TR_SHORT[A.getMonth()]} – ${B.getDate()} ${TR_SHORT[B.getMonth()]}`;
+}
+function phase(ev){
+  const t = todayStr();
+  if (t < ev.start) return "soon";
+  if (t > ev.end) return "done";
+  return "live";
+}
+function daysLeft(start){ return Math.round((pd(start) - pd(todayStr())) / 864e5); }
+function totals(ev){
+  const o = {randevu:0, geldi:0, book:0, gelmedi:0, slots:0};
+  ev.days.forEach(d => { for (const k in o) o[k] += d[k] || 0; });
+  return o;
+}
+function monthLabel(m){ const [y,mm] = m.split("-"); return `${TR_MONTHS[+mm-1]} ${y}`; }
+
+async function load(){
+  try{
+    let data;
+    if (API_URL){
+      const r = await fetch(API_URL + (API_URL.includes("?") ? "&" : "?") + "t=" + Date.now());
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      data = await r.json();
+      $("notice").innerHTML = "";
+    } else {
+      data = DEMO;
+      $("notice").innerHTML = `<div class="notice">Örnek veri gösteriliyor. Canlı veri için index.html içindeki API_URL'ye Apps Script adresini yaz.</div>`;
+    }
+    state.data = data;
+    const months = [...new Set(data.events.map(e => e.month))].sort();
+    if (!state.month || !months.includes(state.month)){
+      const cur = todayStr().slice(0,7);
+      state.month = months.find(m => m >= cur) || months[months.length-1];
+    }
+    const upd = new Date(data.updatedAt);
+    $("meta").innerHTML = `Son güncelleme <b>${upd.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"})}</b><br>Her ${REFRESH_SECONDS} sn yenilenir`;
+    render();
+  } catch(e){
+    $("notice").innerHTML = `<div class="notice err">Veri alınamadı (${esc(e.message)}). Apps Script adresini ve dağıtımın "Herkes" erişimine açık olduğunu kontrol et. Sayfa ${REFRESH_SECONDS} sn sonra tekrar deneyecek.</div>`;
+    if (!state.data) $("meta").textContent = "Bağlantı yok";
+  }
+}
+
+function render(){
+  const all = state.data.events;
+  const months = [...new Set(all.map(e => e.month))].sort();
+  $("months").innerHTML = months.map(m =>
+    `<button class="chip" aria-pressed="${m===state.month}" data-m="${m}">${monthLabel(m)}</button>`).join("");
+  const evs = all.filter(e => e.month === state.month);
+  if (state.filter !== "all" && !evs.some(e => e.id === state.filter)) state.filter = "all";
+  renderRoute(evs);
+  renderSummary(evs);
+  renderFilters(evs);
+  renderBoard(evs);
+  renderMatrix(evs);
+}
+
+function renderRoute(evs){
+  // aynı şehirdeki event'leri tek durakta topla (ör. Manchester Dental + Estetik)
+  const stops = [];
+  evs.forEach(e => {
+    let s = stops.find(x => x.city.toLocaleLowerCase("tr") === e.city.toLocaleLowerCase("tr") && x.start === e.start);
+    if (!s){ s = {city:e.city, start:e.start, end:e.end, evs:[]}; stops.push(s); }
+    s.evs.push(e); if (e.end > s.end) s.end = e.end;
+  });
+  stops.sort((a,b) => a.start < b.start ? -1 : 1);
+  if (!stops.length){ $("route").innerHTML = `<p class="empty">Bu dönemde event yok.</p>`; return; }
+
+  $("route").innerHTML = stops.map(s => {
+    const ph = phase({start:s.start, end:s.end});
+    const when = ph === "soon" ? `<b>${daysLeft(s.start)} gün kaldı</b>` : ph === "live" ? `<b>Şu an sürüyor</b>` : `Tamamlandı`;
+    const blocks = s.evs.map(e => {
+      const t = totals(e);
+      const showOutcome = phase(e) !== "soon";
+      const bars = e.days.map(d => {
+        const pct = d.slots ? Math.min(100, d.randevu / d.slots * 100) : 0;
+        const dd = pd(d.date);
+        return `<div class="dayb" title="${d.randevu} / ${d.slots} slot">
+          <div class="track"><div class="fill" style="width:${pct.toFixed(1)}%"></div></div>
+          <span>${TR_DAYS[dd.getDay()]} ${dd.getDate()} · ${d.randevu}</span></div>`;
+      }).join("");
+      let outcome = "";
+      if (showOutcome && e.hasStatusColumn){
+        outcome = `<div class="outcome"><span><b>${t.geldi}</b>geldi</span><span class="bk"><b>${t.book}</b>book</span>${t.gelmedi ? `<span><b>${t.gelmedi}</b>gelmedi</span>` : ""}</div>`;
+      } else if (showOutcome){
+        outcome = `<p class="hint">Book sayısı için sheet'e "Durum" sütunu ekleyin.</p>`;
+      }
+      const fillPct = t.slots ? Math.round(t.randevu / t.slots * 100) : 0;
+      return `<div class="ev">
+        <div class="ev-head"><span class="ev-type">${esc(e.type)}<small>%${fillPct} dolu</small></span></div>
+        <div class="big">${t.randevu}<small>randevu</small></div>
+        <div class="days">${bars}</div>${outcome}</div>`;
+    }).join("");
+    return `<article class="stop ${ph}"><h3 class="city">${esc(s.city)}</h3>
+      <p class="when">${rangeLabel(s.start, s.end)}, ${when}</p>${blocks}</article>`;
+  }).join("");
+}
+
+function renderSummary(evs){
+  if (!evs.length){ $("summary").textContent = ""; return; }
+  const T = {randevu:0, geldi:0, book:0}; let days = 0; const agents = new Set();
+  evs.forEach(e => { const t = totals(e); T.randevu += t.randevu; T.geldi += t.geldi; T.book += t.book; days += e.days.length;
+    e.days.forEach(d => Object.keys(d.agents).forEach(a => a !== "Atanmamış" && agents.add(a))); });
+  const cities = new Set(evs.map(e => e.city)).size;
+  let s = `${monthLabel(state.month)} turunda ${cities} şehirde <b>${T.randevu} randevu</b> var, ${agents.size} kişi randevu yazdı.`;
+  if (T.geldi) s += ` Gelenlerin <b>${T.book}</b> tanesi book oldu (%${Math.round(T.book / T.geldi * 100)}).`;
+  $("summary").innerHTML = s;
+}
+
+function renderFilters(evs){
+  const opts = [{id:"all", label:"Tüm event'ler"}].concat(evs.map(e => ({id:e.id, label: evs.filter(x => x.city === e.city).length > 1 ? `${e.city} ${e.type}` : e.city})));
+  $("filters").innerHTML = opts.map(o =>
+    `<button class="chip" aria-pressed="${state.filter===o.id}" data-f="${o.id}">${esc(o.label)}</button>`).join("");
+  const anyOutcome = evs.some(e => e.hasStatusColumn && phase(e) !== "soon");
+  const sorts = [["randevu","Randevuya göre"]].concat(anyOutcome ? [["book","Book'a göre"]] : []);
+  if (!anyOutcome) state.sort = "randevu";
+  $("sorts").innerHTML = sorts.length > 1 ? sorts.map(([k,l]) =>
+    `<button class="chip" aria-pressed="${state.sort===k}" data-s="${k}">${l}</button>`).join("") : "";
+}
+
+function agentTotals(evs){
+  const m = {};
+  evs.filter(e => state.filter === "all" || e.id === state.filter).forEach(e =>
+    e.days.forEach(d => Object.entries(d.agents).forEach(([a,v]) => {
+      m[a] = m[a] || {randevu:0, geldi:0, book:0, gelmedi:0};
+      for (const k in m[a]) m[a][k] += v[k] || 0;
+    })));
+  return Object.entries(m).map(([name,v]) => ({name, ...v}));
+}
+
+function renderBoard(evs){
+  const list = agentTotals(evs).sort((a,b) => {
+    if (a.name === "Atanmamış") return 1; if (b.name === "Atanmamış") return -1;
+    return state.sort === "book" ? (b.book - a.book || b.geldi - a.geldi || b.randevu - a.randevu) : (b.randevu - a.randevu || b.book - a.book);
+  });
+  if (!list.length){ $("board").innerHTML = `<p class="empty">Henüz randevu yok.</p>`; return; }
+  const max = Math.max(...list.map(x => x.randevu), 1);
+  const z = n => n ? "" : " zero";
+  const sel = evs.filter(e => state.filter === "all" || e.id === state.filter);
+  const out = sel.some(e => e.hasStatusColumn && phase(e) !== "soon");
+  $("board").classList.toggle("pre", !out);
+  $("legend").hidden = !out;
+  let rank = 0;
+  $("board").innerHTML = `<div class="row head"><span>#</span><span>Sorumlu</span><span class="meter" style="background:none"></span>
+      <span class="num">Randevu</span>${out ? `<span class="num">Geldi</span><span class="num">Book</span><span class="num pct">Book %</span>` : ""}</div>` +
+    list.map(a => {
+      const un = a.name === "Atanmamış";
+      const pct = a.geldi ? Math.round(a.book / a.geldi * 100) + "%" : "–";
+      return `<div class="row">
+        <span class="rank">${un ? "" : ++rank}</span>
+        <span class="name${un ? " dim" : ""}">${esc(a.name)}</span>
+        <div class="meter" aria-hidden="true">
+          <i class="r" style="width:${a.randevu/max*100}%"></i>
+          ${out ? `<i class="g" style="width:${a.geldi/max*100}%"></i><i class="b" style="width:${a.book/max*100}%"></i>` : ""}</div>
+        <span class="num">${a.randevu}</span>
+        ${out ? `<span class="num${z(a.geldi)}">${a.geldi}</span>
+        <span class="num bk${z(a.book)}">${a.book}</span>
+        <span class="num pct${a.geldi ? "" : " zero"}">${pct}</span>` : ""}</div>`;
+    }).join("");
+}
+
+function renderMatrix(evs){
+  const target = evs.filter(e => state.filter === "all" || e.id === state.filter);
+  if (!target.length){ $("matrix").innerHTML = ""; return; }
+  // sütunlar: tek event seçiliyse günler, tümü seçiliyse event'ler
+  const cols = state.filter === "all"
+    ? target.map(e => ({label: target.filter(x => x.city === e.city).length > 1 ? `${e.city} ${e.type}` : e.city, days: e.days}))
+    : target[0].days.map(d => { const dd = pd(d.date); return {label:`${TR_DAYS[dd.getDay()]} ${dd.getDate()} ${TR_SHORT[dd.getMonth()]}`, days:[d]}; });
+  const names = agentTotals(evs).sort((a,b) => (a.name==="Atanmamış") - (b.name==="Atanmamış") || b.randevu - a.randevu).map(a => a.name);
+  const cell = (c, n) => c.days.reduce((s,d) => s + (d.agents[n] ? d.agents[n].randevu : 0), 0);
+  const colTot = c => c.days.reduce((s,d) => s + d.randevu, 0);
+  const title = state.filter === "all" ? "Event bazında randevular" : "Gün bazında randevular";
+  $("matrix").innerHTML = `<h2>${title}</h2><table>
+    <thead><tr><th>Sorumlu</th>${cols.map(c => `<th>${esc(c.label)}</th>`).join("")}<th>Toplam</th></tr></thead>
+    <tbody>${names.map(n => { const vals = cols.map(c => cell(c,n)); const t = vals.reduce((a,b)=>a+b,0);
+      return `<tr><td>${esc(n)}</td>${vals.map(v => `<td class="${v?"":"z"}">${v||"–"}</td>`).join("")}<td><b>${t}</b></td></tr>`; }).join("")}</tbody>
+    <tfoot><tr><td>Toplam</td>${cols.map(c => `<td>${colTot(c)}</td>`).join("")}<td>${cols.reduce((s,c)=>s+colTot(c),0)}</td></tr></tfoot></table>`;
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b || !state.data) return;
+  if (b.dataset.m){ state.month = b.dataset.m; state.filter = "all"; render(); }
+  else if (b.dataset.f){ state.filter = b.dataset.f; render(); }
+  else if (b.dataset.s){ state.sort = b.dataset.s; render(); }
+});
+
+load();
+setInterval(load, REFRESH_SECONDS * 1000);
+</script>
+</body>
+</html>
